@@ -1,50 +1,25 @@
-# React + TypeScript + Vite
+# Nested Folders
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A test component accepting an array of items and displaying them in a tree.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+-   All items must be clickable
+-   If item is a folder, then it should become opened and display its children items. Else it should become focused
+-   Items must have different icons depending on their file extension (".ts", ".js")
+-   Change folder icon state depending on whether it's clicked or not. If it's file then it must have file icon
 
-## Expanding the ESLint configuration
+## What is done
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+-   All items are clickable
+-   All types of items behave correctly
+-   Item type identificator is implemented as text but not icon
 
-- Configure the top-level `parserOptions` property like this:
+## Run locally
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+# install dependencies
+yarn
+# run locally
+yarn dev
 ```

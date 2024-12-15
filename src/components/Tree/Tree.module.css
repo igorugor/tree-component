@@ -1,0 +1,22 @@
+.tree {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.nodeFile {
+	cursor: pointer;
+	margin-right: 10px;
+}
+
+.nodeTitle {
+	color: 'white';
+}
+
+.selected {
+	color: lightblue;
+}
+
+.nodeChildContainer {
+	padding-left: 35px;
+}

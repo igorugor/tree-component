@@ -1,89 +1,93 @@
-import cn from 'classnames';
-import styles from './Tree.module.css';
-import { FileExtension, Item } from '../../types';
 import React from 'react';
+import { FileExtension, FileTreeItem } from '../../types/FileTree';
+
+import PNG_JS from '../../assets/js.png';
+import PNG_TS from '../../assets/ts.png';
+import PNG_FolderClosed from '../../assets/folder-closed.png';
+import PNG_FolderOpen from '../../assets/folder-open.png';
+import PNG_File from '../../assets/new-document.png';
+
+import cn from 'classnames';
+import fileTreeStyles from './Tree.module.css';
 
 interface TreeProps {
-	data: Item[];
+	fileTreeItems: FileTreeItem[];
 	expandedIds: number[];
 	selectedId?: number;
 
-	onExpand: (ids: number) => void;
+	onExpand: (id: number) => void;
 	onSelect: (id: number) => void;
 }
 
-export const Tree: React.FC<TreeProps> = ({ data, expandedIds, selectedId, onExpand, onSelect }) => {
-	return (
-		<div className={cn(styles.tree)}>
-			{data.map((item) => (
-				<Node
-					key={item.id}
-					nodeItem={item}
-					expandedIds={expandedIds}
-					selectedId={selectedId}
-					onExpand={onExpand}
-					onSelect={onSelect}
-				/>
-			))}
-		</div>
-	);
-};
-
-interface NodeProps extends Omit<TreeProps, 'data'> {
-	nodeItem: Item;
-}
-
-const Node: React.FC<NodeProps> = ({ nodeItem, expandedIds, selectedId, onExpand, onSelect }) => {
-	const isOpen = expandedIds.includes(nodeItem.id);
-	const isSelected = nodeItem.id === selectedId;
-	const hasChildren = nodeItem.children?.length !== undefined && nodeItem.children.length > 0;
-
-	const getFileExtension = (): FileExtension => {
+export const Tree: React.FC<TreeProps> = ({ expandedIds, fileTreeItems, selectedId, onExpand, onSelect }) => {
+	const handleItemClick = (id: number, hasChildren: boolean) => {
 		if (hasChildren) {
-			return 'FOLDER';
+			onExpand(id);
 		}
 
-		const fileSplitString = nodeItem.name.split('.');
-		const fileExtension = fileSplitString[fileSplitString.length - 1];
+		onSelect(id);
+	};
 
+	const getFileItemIcon = (fileExtension: FileExtension, isOpen: boolean, hasChildren: boolean) => {
 		if (fileExtension === 'js') {
-			return 'JS';
+			return PNG_JS;
 		}
 
 		if (fileExtension === 'ts') {
-			return 'TS';
+			return PNG_TS;
 		}
 
-		return 'FILE';
-	};
+		if (isOpen) {
+			return PNG_FolderOpen;
+		}
 
-	const handleItemClick = () => {
 		if (hasChildren) {
-			onExpand(nodeItem.id);
-		} else {
-			onSelect(nodeItem.id);
+			return PNG_FolderClosed;
 		}
+
+		return PNG_File;
 	};
 
 	return (
-		<React.Fragment key={nodeItem.id}>
-			<div>
-				<span className={cn([styles.nodeFile, isSelected && styles.selected])} onClick={handleItemClick}>
-					{getFileExtension()}
-				</span>
-				<span className={cn([styles.nodeTitle, isSelected && styles.selected])}>{nodeItem.name}</span>
-			</div>
-			{hasChildren && isOpen ? (
-				<div className={cn(styles.nodeChildContainer)}>
-					<Tree
-						data={nodeItem.children ?? []}
-						expandedIds={expandedIds}
-						onExpand={onExpand}
-						onSelect={onSelect}
-						selectedId={selectedId}
-					/>
-				</div>
-			) : null}
-		</React.Fragment>
+		<div className={cn(fileTreeStyles.fileTree)}>
+			{fileTreeItems.map((item) => {
+				const isOpen = expandedIds.includes(item.id);
+				const isSelected = selectedId === item.id;
+				const separatedFileName = item.name.split('.');
+				const fileExtension = separatedFileName[separatedFileName.length - 1] as FileExtension;
+
+				return (
+					<React.Fragment key={item.id}>
+						<div
+							className={cn([
+								fileTreeStyles.fileTreeItem,
+								isSelected ? fileTreeStyles.selected : undefined,
+							])}
+							onClick={() => handleItemClick(item.id, !!item.children)}
+						>
+							<img
+								src={getFileItemIcon(fileExtension, isOpen, !!item.children)}
+								alt={item.name}
+								width={24}
+								height={24}
+							/>
+
+							<span>{item.name}</span>
+						</div>
+						{item.children && isOpen ? (
+							<div className={cn(fileTreeStyles.fileTreeItemContainer)}>
+								<Tree
+									expandedIds={expandedIds}
+									fileTreeItems={item.children}
+									onExpand={onExpand}
+									onSelect={onSelect}
+									selectedId={selectedId}
+								/>
+							</div>
+						) : null}
+					</React.Fragment>
+				);
+			})}
+		</div>
 	);
 };

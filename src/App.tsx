@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import './App.css';
 import { Tree } from './components';
-import { Item } from './types';
+import { FileTreeItem } from './types/FileTree';
 
-const data: Item[] = [
+const fileTreeItems: FileTreeItem[] = [
 	{
 		id: 1,
 		name: 'node_modules',
@@ -69,30 +69,22 @@ const data: Item[] = [
 ];
 
 function App() {
-	const [selectedId, setSelectedId] = useState<number>(-1);
+	const [selectedId, setSelectedId] = useState<number | undefined>();
 	const [expandedIds, setExpandedIds] = useState<number[]>([]);
 
 	const handleSetSelectedId = useCallback((id: number) => {
 		setSelectedId(id);
 	}, []);
 
-	const handleExpand = useCallback(
-		(id: number) => {
-			if (expandedIds.includes(id)) {
-				setExpandedIds((prev) => prev.filter((expId) => expId !== id));
-			} else {
-				setExpandedIds((prev) => [...prev, id]);
-			}
-			setSelectedId(id);
-		},
-		[expandedIds]
-	);
+	const handleSetExpandedIds = useCallback((id: number) => {
+		setExpandedIds((prev) => (prev.includes(id) ? prev.filter((expandedId) => expandedId !== id) : [...prev, id]));
+	}, []);
 
 	return (
 		<Tree
-			data={data}
+			fileTreeItems={fileTreeItems}
 			expandedIds={expandedIds}
-			onExpand={handleExpand}
+			onExpand={handleSetExpandedIds}
 			onSelect={handleSetSelectedId}
 			selectedId={selectedId}
 		/>

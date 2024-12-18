@@ -1,17 +1,12 @@
 import React from 'react';
-import { FileExtension, FileTreeItem } from '../../types/FileTree';
-
-import PNG_JS from '../../assets/js.png';
-import PNG_TS from '../../assets/ts.png';
-import PNG_FolderClosed from '../../assets/folder-closed.png';
-import PNG_FolderOpen from '../../assets/folder-open.png';
-import PNG_File from '../../assets/new-document.png';
+import { FileExtension, OptimizedFileTreeItem } from '../../types/FileTree';
 
 import cn from 'classnames';
 import fileTreeStyles from './Tree.module.css';
+import { getFileItemIcon } from '../../utils';
 
 interface TreeProps {
-	fileTreeItems: FileTreeItem[];
+	fileTreeItems: OptimizedFileTreeItem[];
 	expandedIds: number[];
 	selectedId?: number;
 
@@ -28,64 +23,43 @@ export const Tree: React.FC<TreeProps> = ({ expandedIds, fileTreeItems, selected
 		onSelect(id);
 	};
 
-	const getFileItemIcon = (fileExtension: FileExtension, isOpen: boolean, hasChildren: boolean) => {
-		if (fileExtension === 'js') {
-			return PNG_JS;
-		}
-
-		if (fileExtension === 'ts') {
-			return PNG_TS;
-		}
-
-		if (isOpen) {
-			return PNG_FolderOpen;
-		}
-
-		if (hasChildren) {
-			return PNG_FolderClosed;
-		}
-
-		return PNG_File;
-	};
-
 	return (
 		<div className={cn(fileTreeStyles.fileTree)}>
 			{fileTreeItems.map((item) => {
+				const hasParent = !!item.parentId;
 				const isOpen = expandedIds.includes(item.id);
+				const isVisible = expandedIds.includes(item.parentId ?? -1);
 				const isSelected = selectedId === item.id;
 				const separatedFileName = item.name.split('.');
 				const fileExtension = separatedFileName[separatedFileName.length - 1] as FileExtension;
 
-				return (
-					<React.Fragment key={item.id}>
-						<div
-							className={cn([
-								fileTreeStyles.fileTreeItem,
-								isSelected ? fileTreeStyles.selected : undefined,
-							])}
-							onClick={() => handleItemClick(item.id, !!item.children)}
-						>
-							<img
-								src={getFileItemIcon(fileExtension, isOpen, !!item.children)}
-								alt={item.name}
-								width={24}
-								height={24}
-							/>
+				if (hasParent && !isVisible) {
+					return null;
+				}
 
-							<span>{item.name}</span>
-						</div>
-						{item.children && isOpen ? (
-							<div className={cn(fileTreeStyles.fileTreeItemContainer)}>
-								<Tree
-									expandedIds={expandedIds}
-									fileTreeItems={item.children}
-									onExpand={onExpand}
-									onSelect={onSelect}
-									selectedId={selectedId}
-								/>
-							</div>
-						) : null}
-					</React.Fragment>
+				return (
+					<div
+						key={item.id}
+						className={cn([
+							fileTreeStyles.fileTreeItem,
+							{
+								[fileTreeStyles.selected]: isSelected,
+							},
+						])}
+						style={{
+							marginLeft: hasParent && item.level ? 50 * item.level : undefined,
+						}}
+						onClick={() => handleItemClick(item.id, !!item.children)}
+					>
+						<img
+							src={getFileItemIcon(fileExtension, isOpen, !!item.children)}
+							alt={item.name}
+							width={24}
+							height={24}
+						/>
+
+						<span>{item.name}</span>
+					</div>
 				);
 			})}
 		</div>

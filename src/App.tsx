@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import './App.css';
 import { Tree } from './components';
 import { FileTreeItem } from './types/FileTree';
+import { optimizeFileTreeItems } from './utils';
 
 const fileTreeItems: FileTreeItem[] = [
 	{
@@ -82,7 +83,7 @@ function App() {
 
 	return (
 		<Tree
-			fileTreeItems={fileTreeItems}
+			fileTreeItems={optimizeFileTreeItems(fileTreeItems)}
 			expandedIds={expandedIds}
 			onExpand={handleSetExpandedIds}
 			onSelect={handleSetSelectedId}

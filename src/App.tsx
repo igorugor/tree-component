@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import './App.css';
 import { Tree } from './components';
 import { FileTreeItem } from './types/FileTree';
-import { optimizeFileTreeItems } from './utils';
+import { getDescendants, optimizeFileTreeItems } from './utils';
 
 const fileTreeItems: FileTreeItem[] = [
 	{
@@ -73,17 +73,27 @@ function App() {
 	const [selectedId, setSelectedId] = useState<number | undefined>();
 	const [expandedIds, setExpandedIds] = useState<number[]>([]);
 
+	const optimizedFileTreeItems = useMemo(() => optimizeFileTreeItems(fileTreeItems), []);
+
 	const handleSetSelectedId = useCallback((id: number) => {
 		setSelectedId(id);
 	}, []);
 
 	const handleSetExpandedIds = useCallback((id: number) => {
-		setExpandedIds((prev) => (prev.includes(id) ? prev.filter((expandedId) => expandedId !== id) : [...prev, id]));
+		setExpandedIds((prev) => {
+			if (prev.includes(id)) {
+				const descendantIds = getDescendants(fileTreeItems, id);
+
+				return prev.filter((expId) => ![id, ...descendantIds].includes(expId));
+			} else {
+				return [...prev, id];
+			}
+		});
 	}, []);
 
 	return (
 		<Tree
-			fileTreeItems={optimizeFileTreeItems(fileTreeItems)}
+			fileTreeItems={optimizedFileTreeItems}
 			expandedIds={expandedIds}
 			onExpand={handleSetExpandedIds}
 			onSelect={handleSetSelectedId}

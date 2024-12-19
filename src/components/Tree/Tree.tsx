@@ -1,23 +1,24 @@
 import React from 'react';
+
 import { FileExtension, OptimizedFileTreeItem } from '../../types/FileTree';
+import { getFileItemIcon } from '../../utils';
 
 import cn from 'classnames';
 import fileTreeStyles from './Tree.module.css';
-import { getFileItemIcon } from '../../utils';
 
 interface TreeProps {
 	fileTreeItems: OptimizedFileTreeItem[];
 	expandedIds: number[];
 	selectedId?: number;
 
-	onExpand: (id: number) => void;
+	onExpand: (id: number, parentId?: number) => void;
 	onSelect: (id: number) => void;
 }
 
 export const Tree: React.FC<TreeProps> = ({ expandedIds, fileTreeItems, selectedId, onExpand, onSelect }) => {
-	const handleItemClick = (id: number, hasChildren: boolean) => {
+	const handleItemClick = (id: number, hasChildren: boolean, parentId?: number) => {
 		if (hasChildren) {
-			onExpand(id);
+			onExpand(id, parentId);
 		}
 
 		onSelect(id);

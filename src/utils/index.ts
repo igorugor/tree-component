@@ -43,3 +43,24 @@ export const getFileItemIcon = (fileExtension: FileExtension, isOpen: boolean, h
 
 	return PNG_File;
 };
+
+export const getDescendants = (fileItems: FileTreeItem[], parentId: number): number[] => {
+	const descendants: number[] = [];
+	const stack = [...fileItems];
+
+	while (stack.length) {
+		const current = stack.pop();
+
+		if (!current) {
+			continue;
+		}
+
+		if (current.children && (current.id === parentId || descendants.includes(current.id))) {
+			descendants.push(...current.children.map((child) => child.id));
+
+			stack.push(...current.children);
+		}
+	}
+
+	return descendants;
+};
